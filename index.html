@@ -1,0 +1,405 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+.screen{display:none;padding:2rem 0}
+.screen.active{display:block}
+h1{font-size:22px;font-weight:500;color:var(--color-text-primary);margin-bottom:0.5rem}
+.sub{font-size:14px;color:var(--color-text-secondary);margin-bottom:2rem}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1.25rem}
+.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.5rem}
+.mode-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1.25rem;cursor:pointer;transition:border-color 0.15s,background 0.15s}
+.mode-card:hover{border-color:var(--color-border-primary);background:var(--color-background-secondary)}
+.mode-card .icon{font-size:24px;margin-bottom:0.75rem;color:var(--color-text-secondary)}
+.mode-card h3{font-size:15px;font-weight:500;margin-bottom:0.25rem;color:var(--color-text-primary)}
+.mode-card p{font-size:13px;color:var(--color-text-secondary);line-height:1.5}
+.range-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.5rem}
+.range-btn{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:0.75rem 1rem;cursor:pointer;font-size:15px;font-weight:500;color:var(--color-text-primary);text-align:center;transition:all 0.15s}
+.range-btn:hover,.range-btn.selected{border-color:#378ADD;background:#E6F1FB;color:#185FA5}
+.btn{background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:0.6rem 1.25rem;font-size:14px;font-weight:500;color:var(--color-text-primary);cursor:pointer;transition:all 0.15s}
+.btn:hover{background:var(--color-background-secondary)}
+.btn:active{transform:scale(0.98)}
+.btn-primary{background:#378ADD;border-color:#378ADD;color:#fff}
+.btn-primary:hover{background:#185FA5;border-color:#185FA5}
+.btn-sm{padding:0.4rem 0.9rem;font-size:13px}
+.label{font-size:13px;color:var(--color-text-secondary);margin-bottom:0.5rem}
+.big-num{font-size:48px;font-weight:500;color:var(--color-text-primary);letter-spacing:-1px;margin:1rem 0}
+.feedback{font-size:15px;font-weight:500;padding:0.6rem 1rem;border-radius:var(--border-radius-md);margin:1rem 0;display:inline-block}
+.feedback.up{background:#E6F1FB;color:#185FA5}
+.feedback.down{background:#FAECE7;color:#993C1D}
+.feedback.correct{background:#EAF3DE;color:#3B6D11}
+.input-row{display:flex;gap:8px;margin:1rem 0;align-items:center}
+.num-input{flex:1;padding:0.6rem 0.9rem;font-size:16px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary)}
+.num-input:focus{outline:none;border-color:#378ADD}
+.history-list{margin:1rem 0;max-height:160px;overflow-y:auto;display:flex;flex-direction:column;gap:6px}
+.history-item{display:flex;align-items:center;gap:8px;font-size:13px;padding:0.4rem 0.75rem;border-radius:var(--border-radius-md);background:var(--color-background-secondary)}
+.badge{font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px}
+.badge-up{background:#E6F1FB;color:#185FA5}
+.badge-down{background:#FAECE7;color:#993C1D}
+.badge-ok{background:#EAF3DE;color:#3B6D11}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:1rem 0}
+.stat{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:0.75rem;text-align:center}
+.stat-val{font-size:24px;font-weight:500;color:var(--color-text-primary)}
+.stat-lbl{font-size:12px;color:var(--color-text-secondary);margin-top:2px}
+.strategy-box{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1.25rem;margin:1rem 0}
+.strategy-box h3{font-size:14px;font-weight:500;margin-bottom:0.75rem;color:var(--color-text-primary)}
+.step-list{display:flex;flex-direction:column;gap:6px}
+.step-item{font-size:13px;padding:0.4rem 0.75rem;border-radius:var(--border-radius-md);background:var(--color-background-secondary);color:var(--color-text-secondary)}
+.step-item.highlight{background:#E6F1FB;color:#185FA5}
+.viz-bar-wrap{margin:1rem 0;position:relative;height:32px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);overflow:hidden}
+.viz-bar{height:100%;background:#378ADD;border-radius:var(--border-radius-md);transition:width 0.4s;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;font-size:12px;color:#fff;font-weight:500}
+.divider{border:none;border-top:0.5px solid var(--color-border-tertiary);margin:1.5rem 0}
+.comp-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:1rem 0}
+.comp-card{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem}
+.comp-card h4{font-size:13px;color:var(--color-text-secondary);margin-bottom:0.5rem}
+.comp-card .num{font-size:28px;font-weight:500;color:var(--color-text-primary)}
+.winner{border-color:#378ADD}
+.winner h4{color:#185FA5}
+.winner .num{color:#185FA5}
+.highlight-box{background:#E6F1FB;border-radius:var(--border-radius-md);padding:0.75rem 1rem;font-size:14px;color:#185FA5;font-weight:500;margin:1rem 0}
+.computer-step{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:0.75rem 1rem;margin:0.5rem 0;font-size:14px;color:var(--color-text-primary)}
+.computer-step .range-info{font-size:12px;color:var(--color-text-secondary);margin-bottom:2px}
+.yesno-row{display:flex;gap:8px;margin-top:0.75rem}
+.sub-mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem}
+.sub-mode-btn{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:0.75rem;cursor:pointer;font-size:14px;font-weight:500;color:var(--color-text-primary);text-align:center;transition:all 0.15s}
+.sub-mode-btn:hover,.sub-mode-btn.selected{border-color:#378ADD;background:#E6F1FB;color:#185FA5}
+</style>
+
+<h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">Up & Down 게임 — 알고리즘 학습 사이트</h2>
+
+<div id="s-home" class="screen active">
+  <h1>Up &amp; Down 게임</h1>
+  <p class="sub">숫자를 맞히면서 알고리즘의 효율을 체험해보세요</p>
+  <div class="mode-grid">
+    <div class="mode-card" onclick="startStudentMode()">
+      <div class="icon"><i class="ti ti-user" aria-hidden="true"></i></div>
+      <h3>내가 맞히기</h3>
+      <p>컴퓨터가 숫자를 정하면 내가 up/down으로 맞혀요</p>
+    </div>
+    <div class="mode-card" onclick="startComputerMode()">
+      <div class="icon"><i class="ti ti-cpu" aria-hidden="true"></i></div>
+      <h3>컴퓨터가 맞히기</h3>
+      <p>순차 탐색 vs 이진 탐색, 두 방법을 비교해요</p>
+    </div>
+  </div>
+  <p class="label">숫자 범위 선택</p>
+  <div class="range-grid">
+    <div class="range-btn selected" id="r100" onclick="setRange(100)">1 ~ 100</div>
+    <div class="range-btn" id="r1000" onclick="setRange(1000)">1 ~ 1000</div>
+  </div>
+</div>
+
+<div id="s-student" class="screen">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:1.5rem">
+    <button class="btn btn-sm" onclick="goHome()"><i class="ti ti-arrow-left" aria-hidden="true"></i> 처음으로</button>
+    <span style="font-size:13px;color:var(--color-text-secondary)">내가 맞히기 — 1 ~ <span id="st-range-label">100</span></span>
+  </div>
+  <div class="card">
+    <p class="label">1부터 <span id="st-max">100</span> 사이의 숫자를 맞혀보세요</p>
+    <div class="big-num" id="st-guess-display">?</div>
+    <div id="st-feedback"></div>
+    <div class="input-row">
+      <input class="num-input" type="number" id="st-input" placeholder="숫자 입력" min="1">
+      <button class="btn btn-primary" onclick="studentGuess()">확인</button>
+    </div>
+    <p class="label">시도 횟수: <span id="st-tries" style="font-weight:500;color:var(--color-text-primary)">0</span></p>
+  </div>
+  <div class="history-list" id="st-history"></div>
+</div>
+
+<div id="s-student-result" class="screen">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:1.5rem">
+    <button class="btn btn-sm" onclick="goHome()"><i class="ti ti-arrow-left" aria-hidden="true"></i> 처음으로</button>
+  </div>
+  <h1>정답! 🎉</h1>
+  <p class="sub" id="sr-answer-text"></p>
+  <div class="stat-grid">
+    <div class="stat"><div class="stat-val" id="sr-tries"></div><div class="stat-lbl">내 시도 횟수</div></div>
+    <div class="stat"><div class="stat-val" id="sr-optimal"></div><div class="stat-lbl">이진탐색 최적</div></div>
+    <div class="stat"><div class="stat-val" id="sr-diff"></div><div class="stat-lbl">차이</div></div>
+  </div>
+  <hr class="divider">
+  <p class="label" style="margin-bottom:0.75rem">내 시도 과정 시각화</p>
+  <div id="sr-viz"></div>
+  <hr class="divider">
+  <div class="strategy-box">
+    <h3><i class="ti ti-bulb" aria-hidden="true"></i> 이진 탐색 전략이란?</h3>
+    <div class="step-list" id="sr-strategy"></div>
+  </div>
+  <div style="margin-top:1rem">
+    <button class="btn btn-primary" onclick="startStudentMode()">다시 하기</button>
+    <button class="btn" onclick="goHome()" style="margin-left:8px">처음으로</button>
+  </div>
+</div>
+
+<div id="s-computer" class="screen">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:1.5rem">
+    <button class="btn btn-sm" onclick="goHome()"><i class="ti ti-arrow-left" aria-hidden="true"></i> 처음으로</button>
+    <span style="font-size:13px;color:var(--color-text-secondary)" id="cp-mode-label"></span>
+  </div>
+  <div class="card">
+    <p class="label">마음속으로 1~<span id="cp-max">100</span> 사이의 숫자를 정하세요</p>
+    <div style="margin:1rem 0">
+      <div class="computer-step" id="cp-current-step">
+        <div class="range-info" id="cp-range-info"></div>
+        <div id="cp-question"></div>
+      </div>
+    </div>
+    <div class="yesno-row" id="cp-yesno">
+      <button class="btn" onclick="cpAnswer('low')">📉 더 작아요</button>
+      <button class="btn btn-primary" onclick="cpAnswer('correct')">✅ 정답!</button>
+      <button class="btn" onclick="cpAnswer('high')">📈 더 커요</button>
+    </div>
+    <p class="label" style="margin-top:1rem">시도 횟수: <span id="cp-tries" style="font-weight:500;color:var(--color-text-primary)">0</span></p>
+  </div>
+  <div class="history-list" id="cp-history"></div>
+</div>
+
+<div id="s-computer-between" class="screen">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:1.5rem">
+    <button class="btn btn-sm" onclick="goHome()"><i class="ti ti-arrow-left" aria-hidden="true"></i> 처음으로</button>
+  </div>
+  <h1>순차 탐색 완료!</h1>
+  <p class="sub">이제 같은 숫자로 이진 탐색을 해볼게요</p>
+  <div class="stat-grid" style="grid-template-columns:1fr">
+    <div class="stat"><div class="stat-val" id="cb-seq-tries"></div><div class="stat-lbl">순차 탐색 시도 횟수</div></div>
+  </div>
+  <p style="font-size:14px;color:var(--color-text-secondary);margin:1rem 0">이진 탐색으로 같은 숫자를 찾으면 얼마나 빠른지 비교할 수 있어요!</p>
+  <button class="btn btn-primary" onclick="startBinaryPhase()">이진 탐색 시작하기</button>
+</div>
+
+<div id="s-computer-result" class="screen">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:1.5rem">
+    <button class="btn btn-sm" onclick="goHome()"><i class="ti ti-arrow-left" aria-hidden="true"></i> 처음으로</button>
+  </div>
+  <h1>비교 결과</h1>
+  <p class="sub" id="cr-answer-text"></p>
+  <div class="comp-grid">
+    <div class="comp-card">
+      <h4><i class="ti ti-list-numbers" aria-hidden="true"></i> 순차 탐색</h4>
+      <div class="num" id="cr-seq"></div>
+      <div style="font-size:12px;color:var(--color-text-secondary);margin-top:4px">1씩 증가하며 탐색</div>
+    </div>
+    <div class="comp-card winner">
+      <h4><i class="ti ti-arrows-split" aria-hidden="true"></i> 이진 탐색</h4>
+      <div class="num" id="cr-bin"></div>
+      <div style="font-size:12px;color:#185FA5;margin-top:4px">범위를 절반씩 줄여 탐색</div>
+    </div>
+  </div>
+  <div class="highlight-box" id="cr-comment"></div>
+  <hr class="divider">
+  <p class="label" style="margin-bottom:0.75rem">탐색 과정 비교</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div>
+      <p style="font-size:13px;color:var(--color-text-secondary);margin-bottom:0.5rem">순차 탐색</p>
+      <div id="cr-seq-viz"></div>
+    </div>
+    <div>
+      <p style="font-size:13px;color:var(--color-text-secondary);margin-bottom:0.5rem">이진 탐색</p>
+      <div id="cr-bin-viz"></div>
+    </div>
+  </div>
+  <hr class="divider">
+  <div class="strategy-box">
+    <h3><i class="ti ti-bulb" aria-hidden="true"></i> 이진 탐색이 효율적인 이유</h3>
+    <div class="step-list" id="cr-strategy"></div>
+  </div>
+  <div style="margin-top:1rem">
+    <button class="btn btn-primary" onclick="startComputerMode()">다시 하기</button>
+    <button class="btn" onclick="goHome()" style="margin-left:8px">처음으로</button>
+  </div>
+</div>
+
+<script>
+let maxNum=100,mode='',secret=0,tries=0,lo=1,hi=100,cpPhase='seq',seqTries=0,binTries=0;
+let seqHistory=[],binHistory=[],studentHistory=[];
+
+function setRange(n){
+  maxNum=n;
+  document.querySelectorAll('.range-btn').forEach(b=>b.classList.remove('selected'));
+  document.getElementById('r'+n).classList.add('selected');
+}
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function goHome(){show('s-home')}
+
+function startStudentMode(){
+  secret=Math.floor(Math.random()*maxNum)+1;
+  tries=0;studentHistory=[];
+  document.getElementById('st-range-label').textContent=maxNum;
+  document.getElementById('st-max').textContent=maxNum;
+  document.getElementById('st-input').max=maxNum;
+  document.getElementById('st-input').value='';
+  document.getElementById('st-tries').textContent='0';
+  document.getElementById('st-feedback').innerHTML='';
+  document.getElementById('st-guess-display').textContent='?';
+  document.getElementById('st-history').innerHTML='';
+  show('s-student');
+  setTimeout(()=>document.getElementById('st-input').focus(),100);
+}
+
+function studentGuess(){
+  const v=parseInt(document.getElementById('st-input').value);
+  if(!v||v<1||v>maxNum){alert('1~'+maxNum+' 사이의 숫자를 입력하세요');return;}
+  tries++;
+  studentHistory.push(v);
+  document.getElementById('st-tries').textContent=tries;
+  document.getElementById('st-guess-display').textContent=v;
+  document.getElementById('st-input').value='';
+  const fb=document.getElementById('st-feedback');
+  const hist=document.getElementById('st-history');
+  if(v===secret){
+    fb.innerHTML='<span class="feedback correct">🎉 정답!</span>';
+    setTimeout(()=>showStudentResult(),600);
+  } else if(v<secret){
+    fb.innerHTML='<span class="feedback up">📈 UP! 더 큰 숫자예요</span>';
+    hist.innerHTML=`<div class="history-item"><span class="badge badge-up">UP</span><span>${v}</span></div>`+hist.innerHTML;
+  } else {
+    fb.innerHTML='<span class="feedback down">📉 DOWN! 더 작은 숫자예요</span>';
+    hist.innerHTML=`<div class="history-item"><span class="badge badge-down">DOWN</span><span>${v}</span></div>`+hist.innerHTML;
+  }
+  document.getElementById('st-input').focus();
+}
+
+function showStudentResult(){
+  const optimal=Math.ceil(Math.log2(maxNum));
+  document.getElementById('sr-answer-text').textContent='정답: '+secret+' | 범위: 1~'+maxNum;
+  document.getElementById('sr-tries').textContent=tries;
+  document.getElementById('sr-optimal').textContent=optimal+'번';
+  document.getElementById('sr-diff').textContent=(tries-optimal>0?'+':'')+(tries-optimal)+'번';
+  const viz=document.getElementById('sr-viz');
+  viz.innerHTML='';
+  studentHistory.forEach((g,i)=>{
+    const pct=Math.round((g/maxNum)*100);
+    const isSecret=(g===secret);
+    const wrap=document.createElement('div');
+    wrap.style.cssText='margin-bottom:6px';
+    wrap.innerHTML=`<div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:2px">${i+1}번째: ${g}</div>
+    <div class="viz-bar-wrap"><div class="viz-bar" style="width:${pct}%;background:${isSecret?'#639922':'#378ADD'}">${g}</div></div>`;
+    viz.appendChild(wrap);
+  });
+  const strat=document.getElementById('sr-strategy');
+  const mid=Math.floor((1+maxNum)/2);
+  strat.innerHTML=`
+    <div class="step-item highlight">1. 항상 현재 범위의 가운데 숫자를 선택해요</div>
+    <div class="step-item">2. 예: 1~${maxNum} → 먼저 ${mid} 시도</div>
+    <div class="step-item">3. UP이면 범위를 ${mid+1}~${maxNum}으로 절반으로 줄여요</div>
+    <div class="step-item">4. DOWN이면 범위를 1~${mid-1}으로 절반으로 줄여요</div>
+    <div class="step-item highlight">5. 최대 ${optimal}번만에 항상 정답을 찾을 수 있어요!</div>
+  `;
+  show('s-student-result');
+}
+
+function startComputerMode(){
+  secret=Math.floor(Math.random()*maxNum)+1;
+  cpPhase='seq';seqTries=0;binTries=0;
+  seqHistory=[];binHistory=[];
+  lo=1;hi=maxNum;
+  let seqCurrent=1;
+  document.getElementById('cp-max').textContent=maxNum;
+  document.getElementById('cp-mode-label').textContent='순차 탐색 진행 중 | 1~'+maxNum;
+  document.getElementById('cp-tries').textContent='0';
+  document.getElementById('cp-history').innerHTML='';
+  document.getElementById('cp-range-info').textContent='순차 탐색: 1부터 하나씩 물어봐요';
+  document.getElementById('cp-question').textContent='컴퓨터가 물어보는 숫자: '+seqCurrent;
+  window._seqCurrent=1;
+  show('s-computer');
+}
+
+function cpAnswer(ans){
+  if(cpPhase==='seq'){
+    const cur=window._seqCurrent;
+    seqTries++;
+    document.getElementById('cp-tries').textContent=seqTries;
+    const badge=ans==='correct'?'badge-ok':ans==='low'?'badge-up':'badge-down';
+    const label=ans==='correct'?'정답':'X';
+    const hist=document.getElementById('cp-history');
+    hist.innerHTML=`<div class="history-item"><span class="badge ${badge}">${label}</span><span>${cur}</span></div>`+hist.innerHTML;
+    seqHistory.push(cur);
+    if(ans==='correct'){
+      document.getElementById('cb-seq-tries').textContent=seqTries+'번';
+      show('s-computer-between');
+    } else {
+      window._seqCurrent=cur+1;
+      document.getElementById('cp-range-info').textContent='순차 탐색: 1부터 하나씩';
+      document.getElementById('cp-question').textContent='컴퓨터가 물어보는 숫자: '+window._seqCurrent;
+    }
+  } else {
+    const mid=Math.floor((lo+hi)/2);
+    binTries++;
+    document.getElementById('cp-tries').textContent=binTries;
+    const badge=ans==='correct'?'badge-ok':ans==='low'?'badge-up':'badge-down';
+    const label=ans==='correct'?'정답':'X';
+    const hist=document.getElementById('cp-history');
+    hist.innerHTML=`<div class="history-item"><span class="badge ${badge}">${label}</span><span>${mid}</span><span style="font-size:11px;color:var(--color-text-secondary)">(범위: ${lo}~${hi})</span></div>`+hist.innerHTML;
+    binHistory.push({num:mid,lo,hi});
+    if(ans==='correct'){
+      showComputerResult();
+    } else if(ans==='low'){
+      lo=mid+1;
+      updateBinaryStep();
+    } else {
+      hi=mid-1;
+      updateBinaryStep();
+    }
+  }
+}
+
+function startBinaryPhase(){
+  cpPhase='binary';lo=1;hi=maxNum;
+  document.getElementById('cp-mode-label').textContent='이진 탐색 진행 중 | 1~'+maxNum;
+  document.getElementById('cp-tries').textContent='0';
+  document.getElementById('cp-history').innerHTML='';
+  updateBinaryStep();
+  show('s-computer');
+}
+
+function updateBinaryStep(){
+  const mid=Math.floor((lo+hi)/2);
+  document.getElementById('cp-range-info').textContent='현재 범위: '+lo+' ~ '+hi;
+  document.getElementById('cp-question').textContent='중간값 '+mid+' 을(를) 물어봐요';
+}
+
+function showComputerResult(){
+  const seqAns=seqHistory[seqHistory.length-1];
+  document.getElementById('cr-answer-text').textContent='정답: '+seqAns+' | 범위: 1~'+maxNum;
+  document.getElementById('cr-seq').textContent=seqTries+'번';
+  document.getElementById('cr-bin').textContent=binTries+'번';
+  const ratio=(seqTries/binTries).toFixed(1);
+  document.getElementById('cr-comment').textContent='이진 탐색이 순차 탐색보다 약 '+ratio+'배 빠르게 정답을 찾았어요!';
+  const seqViz=document.getElementById('cr-seq-viz');
+  seqViz.innerHTML='';
+  seqHistory.slice(-10).forEach((n,i)=>{
+    const pct=Math.round((n/maxNum)*100);
+    const isLast=(i===seqHistory.slice(-10).length-1);
+    seqViz.innerHTML+=`<div style="margin-bottom:4px"><div class="viz-bar-wrap"><div class="viz-bar" style="width:${pct}%;background:${isLast?'#639922':'#888780'};min-width:24px">${n}</div></div></div>`;
+  });
+  if(seqHistory.length>10){
+    seqViz.innerHTML=`<div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:6px">…총 ${seqTries}번 중 마지막 10번만 표시</div>`+seqViz.innerHTML;
+  }
+  const binViz=document.getElementById('cr-bin-viz');
+  binViz.innerHTML='';
+  binHistory.forEach((h,i)=>{
+    const pct=Math.round((h.num/maxNum)*100);
+    const isLast=(i===binHistory.length-1);
+    binViz.innerHTML+=`<div style="margin-bottom:4px"><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:2px">${h.lo}~${h.hi}</div><div class="viz-bar-wrap"><div class="viz-bar" style="width:${pct}%;background:${isLast?'#639922':'#378ADD'};min-width:24px">${h.num}</div></div></div>`;
+  });
+  const opt=Math.ceil(Math.log2(maxNum));
+  document.getElementById('cr-strategy').innerHTML=`
+    <div class="step-item highlight">매번 범위를 절반으로 줄여요 → 탐색 속도가 기하급수적으로 빨라져요</div>
+    <div class="step-item">1~${maxNum} 범위에서 이진 탐색의 최대 시도 횟수는 ${opt}번이에요</div>
+    <div class="step-item">순차 탐색은 최악의 경우 ${maxNum}번이 필요해요</div>
+    <div class="step-item highlight">범위가 클수록 이진 탐색의 효율이 훨씬 더 빛나요!</div>
+  `;
+  show('s-computer-result');
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'){
+    const s=document.querySelector('.screen.active');
+    if(s&&s.id==='s-student') studentGuess();
+  }
+});
+</script>
